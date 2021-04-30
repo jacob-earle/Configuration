@@ -10,9 +10,7 @@
 ;; Set up the visible bell
 (setq visible-bell t)
 
-(load-theme 'tango)
-
-(set-face-attribute 'default nil :font "Fira Code" :height 150)
+(set-face-attribute 'default nil :font "Fira Code" :height 135)
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -44,6 +42,9 @@
 		shell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
+(setq custom-file (concat user-emacs-directory "custom.el"))
+(load custom-file 'noerror)
+
 
 (use-package command-log-mode)
 
@@ -72,8 +73,8 @@
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
 
-;; (use-package doom-themes
-;;  :init (load-theme 'doom-gruvbox))
+(use-package doom-themes
+ :init (load-theme 'doom-gruvbox-light))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -155,4 +156,17 @@
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
+(setq auth-sources '("~/.authinfo"))
+(use-package forge)
+
 (use-package sml-mode)
+
+(use-package tex
+  :ensure auctex
+  :config
+  (setq Tex-auto-save t)
+  (setq Tex-parse-self t)
+  :hook
+  (LaTeX-mode . (lambda () (set (make-local-variable 'TeX-electric-math)
+				(cons "$" "$")))))
+
