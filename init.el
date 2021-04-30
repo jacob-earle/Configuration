@@ -157,7 +157,8 @@
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (setq auth-sources '("~/.authinfo"))
-(use-package forge)
+(use-package forge
+  :after magit)
 
 (use-package sml-mode)
 
