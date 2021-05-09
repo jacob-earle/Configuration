@@ -74,7 +74,7 @@
   :custom ((doom-modeline-height 15)))
 
 (use-package doom-themes
- :init (load-theme 'doom-gruvbox-light))
+ :init (load-theme 'doom-gruvbox))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -152,6 +152,21 @@
 (rune/leader-keys
   "ts" '(hydra-text-scale/body :which-key "scale text"))
 
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  ;; NOTE: Set this to the folder where you keep your Git repos!
+  (when (file-directory-p "~/CodeProjects")
+    (setq projectile-project-search-path '("~/CodeProjects")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
+
 (use-package magit
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
@@ -171,3 +186,47 @@
   (LaTeX-mode . (lambda () (set (make-local-variable 'TeX-electric-math)
 				(cons "$" "$")))))
 
+;; Support for LSP-baseed development environment
+(defun efs/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (lsp-mode . efs/lsp-mode-setup)
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :config
+  (lsp-enable-which-key-integration t)
+  (setq lsp-enable-links nil))
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-ivy
+  :after lsp)
+
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
+(add-hook 'js-mode-hook 'lsp-deferred)
+
+(use-package web-mode
+  :ensure emmet-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode))
+  (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
+  :hook (web-mode . emmet-mode))
